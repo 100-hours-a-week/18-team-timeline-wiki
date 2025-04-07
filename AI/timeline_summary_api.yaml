@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: Timeline Summary API
+  description: 자연어 검색어를 기반으로 뉴스 요약 타임라인을 생성하는 API
+  version: 1.0.1
+
+paths:
+  /api/generate-timeline:
+    post:
+      summary: 검색 쿼리 기반 뉴스 타임라인 요약 생성
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  example: "이스라엘과 이란의 최근 분쟁"
+                  description: 유저가 입력한 자연어 검색어
+                start_date:
+                  type: string
+                  format: date
+                  example: "2024-10-01"
+                  description: 검색 시작 날짜 (YYYY-MM-DD)
+                end_date:
+                  type: string
+                  format: date
+                  example: "2024-12-31"
+                  description: 검색 종료 날짜 (YYYY-MM-DD)
+                granularity:
+                  type: string
+                  enum: [day, week, month]
+                  example: "week"
+                  description: 타임라인 단위 기간 (예: 일별, 주별, 월별)
+                max_articles_per_day:
+                  type: integer
+                  example: 5
+                  description: 날짜별 최대 기사 수 (선택)
+      responses:
+        '200':
+          description: 타임라인 요약본 생성 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                    description: 입력된 검색어
+                  timeline:
+                    type: array
+                    description: 날짜순 뉴스 요약 리스트
+                    items:
+                      type: object
+                      properties:
+                        title:
+                          type: string
+                          description: 요약 제목 또는 대표 문장
+                        date:
+                          type: string
+                          format: date
+                          description: 뉴스 날짜
+                        content:
+                          type: string
+                          description: 요약 내용
+        '400':
+          description: 잘못된 요청 (예: 검색어 누락, 날짜 형식 오류)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "error"
+                  message:
+                    type: string
+                    example: "검색어가 너무 짧습니다."
